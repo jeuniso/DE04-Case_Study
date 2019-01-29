@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS card_external;
+CREATE EXTERNAL TABLE card_external (
+  id INT,
+  timeId STRING,
+  credit_card_no STRING,
+  ssn INT,
+  branch_code INT,
+  transaction_type STRING,
+  transaction_value DOUBLE
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+LOCATION '/Credit_Card_System/CDW_SAPP_CREDITCARD.txt';
