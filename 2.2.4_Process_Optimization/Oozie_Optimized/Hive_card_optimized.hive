@@ -1,0 +1,16 @@
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+CREATE TABLE IF NOT EXISTS card (
+  id INT,
+  timeId STRING,
+  credit_card_no STRING,
+  ssn INT,
+  transaction_type STRING,
+  transaction_value DOUBLE
+)
+PARTITIONED BY (branch_code INT);
+
+INSERT INTO TABLE card 
+PARTITION (branch_code)
+SELECT id, timeId, credit_card_no, ssn, transaction_type, transaction_value, branch_code FROM card_external;

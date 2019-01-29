@@ -1,0 +1,15 @@
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+CREATE TABLE IF NOT EXISTS time (
+  id INT,
+  thedate INT,
+  day INT,
+  month INT,
+  quarter STRING
+)
+PARTITIONED BY (year INT);
+
+INSERT INTO TABLE time 
+PARTITION (year)
+SELECT * FROM time_external;

@@ -1,0 +1,22 @@
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+CREATE TABLE IF NOT EXISTS customer (
+  ssn STRING,
+  first STRING,
+  middle STRING,
+  last STRING,
+  card STRING,
+  street STRING,
+  city STRING,
+  country STRING,
+  zip INT,
+  phone STRING,
+  email STRING,
+  last_updated TIMESTAMP
+)
+PARTITIONED BY (state STRING);
+
+INSERT INTO TABLE customer 
+PARTITION (state)
+SELECT ssn, first, middle, last, card, street, city, country, zip, phone, email, last_updated, state FROM customer_external;

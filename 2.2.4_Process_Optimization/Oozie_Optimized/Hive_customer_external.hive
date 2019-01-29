@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS customer_external;
+CREATE EXTERNAL TABLE customer_external (
+  ssn STRING,
+  first STRING,
+  middle STRING,
+  last STRING,
+  card STRING,
+  street STRING,
+  city STRING,
+  state STRING,
+  country STRING,
+  zip INT,
+  phone STRING,
+  email STRING,
+  last_updated TIMESTAMP
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+LOCATION '/Credit_Card_System/CDW_SAPP_CUSTOMER.txt';

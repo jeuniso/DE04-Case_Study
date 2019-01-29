@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="case_study_optimized">
+   <start to="Sqoop_Branch"/>   
+ 
+
+   <action name="Sqoop_Branch">
+	<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>  
+            
+	    <prepare>
+		<delete path= "${nameNode}/Credit_Card_System/*"/>
+	    </prepare>
+            
+	    <configuration>
+		<property>
+		    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+            
+	    <command>job --meta-connect ${sqoopmetastore} --exec importBranch</command>
+			
+	    <archive>${ooziejar}</archive>
+	</sqoop>
+
+	<ok to="Sqoop_Card"/> 
+	<error to="Sqoop_fail"/>
+    </action>
+	
+
+    <action name="Sqoop_Card">
+	<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+	    <job-tracker>${jobTracker}</job-tracker>
+	    <name-node>${nameNode}</name-node>  
+            
+	    <configuration>
+                <property>
+		    <name>${queueName}</name>
+		    <value>${queueValue}</value>
+                </property>
+            </configuration>
+            
+	    <command>job --meta-connect ${sqoopmetastore} --exec importCard</command>
+			
+	    <archive>${ooziejar}</archive>
+	</sqoop>
+
+        <ok to="Sqoop_Time"/> 
+        <error to="Sqoop_fail"/>
+    </action>
+	
+
+    <action name="Sqoop_Time">
+	<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>  
+            
+            <configuration>
+                <property>
+		    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+            
+	    <command>job --meta-connect ${sqoopmetastore} --exec importTime</command>
+			
+	    <archive>${ooziejar}</archive>
+        </sqoop>
+
+        <ok to="Sqoop_Customer"/> 
+        <error to="Sqoop_fail"/>
+    </action>
+
+	
+    <action name="Sqoop_Customer">
+	<sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>  
+            
+            <configuration>
+                <property>
+		    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+            
+	    <command>job --meta-connect ${sqoopmetastore} --exec importCustomer</command>
+			
+	    <archive>${ooziejar}</archive>
+        </sqoop>
+
+        <ok to="Branch_External"/> 
+        <error to="Sqoop_fail"/>
+    </action>
+
+
+    <action name="Branch_External">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_branch_external.hive</script>
+        </hive>
+
+        <ok to="Branch_Internal"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Branch_Internal">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_branch_optimized.hive</script>
+        </hive>
+
+        <ok to="Card_External"/>
+        <error to="Hive_fail"/>
+    </action>
+	
+
+    <action name="Card_External">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_card_external.hive</script>
+        </hive>
+
+        <ok to="Card_Internal"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Card_Internal">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_card_optimized.hive</script>
+        </hive>
+
+        <ok to="Time_External"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Time_External">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_time_external.hive</script>
+        </hive>
+
+        <ok to="Time_Internal"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Time_Internal">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_time_optimized.hive</script>
+        </hive>
+
+        <ok to="Customer_External"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Customer_External">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_customer_external.hive</script>
+        </hive>
+
+        <ok to="Customer_Internal"/>
+        <error to="Hive_fail"/>
+    </action>
+
+
+    <action name="Customer_Internal">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            
+            <configuration>
+                <property>
+                    <name>${queueName}</name>
+                    <value>${queueValue}</value>
+                </property>
+            </configuration>
+
+            <script>Hive_customer_optimized.hive</script>
+        </hive>
+
+        <ok to="end"/>
+        <error to="Hive_fail"/>
+    </action>
+	
+
+    <kill name="Sqoop_fail">
+        <message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+
+    <kill name="Hive_fail">
+	<message>Hive failed</message>
+    </kill>
+
+
+    <end name="end"/>
+</workflow-app>

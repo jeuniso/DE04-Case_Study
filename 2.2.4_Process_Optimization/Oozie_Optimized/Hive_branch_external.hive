@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS branch_external;
+CREATE EXTERNAL TABLE branch_external (
+  code INT,
+  name STRING,
+  street STRING,
+  city STRING,
+  state STRING,
+  zip INT,
+  phone STRING,
+  last_updated TIMESTAMP
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+LOCATION '/Credit_Card_System/CDW_SAPP_BRANCH.txt';
