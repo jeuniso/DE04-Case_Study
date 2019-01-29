@@ -1,0 +1,19 @@
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+DROP TABLE IF EXISTS branch;
+
+CREATE TABLE branch (
+  code INT,
+  name STRING,
+  street STRING,
+  city STRING,
+  zip INT,
+  phone STRING,
+  last_updated TIMESTAMP
+)
+PARTITIONED BY (state STRING);
+
+INSERT INTO TABLE branch
+PARTITION (state)
+SELECT code, name, street, city, zip, phone, last_updated, state FROM branch_external;
